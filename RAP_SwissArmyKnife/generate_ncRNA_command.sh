@@ -9,6 +9,6 @@ for chr in {1..22}; do
     done
 
     for set in $(seq 1 $Nsets); do
-        echo "Rscript ncRNA_onRAP.R --chr=${chr} --set=${set} --Nsets=${Nsets} --output.file=NonCoding_results_chr${chr}_${set} --objnull.file=objNull_chr${chr}.rda --agds.file=ukb.500k.wgs.chr${chr}.pass.annotated.gds --Annotation.name.catalog.file=Annotation_name_catalog.rda --QC_label=annotation/info/QC_label --verbose=T"
+        echo "Rscript ncRNA_onRAP.R --chr=${chr} --set=${set} --Nsets=${Nsets} --output.file=ncRNA_results_chr${chr}_${set} --objnull.file=objNull_chr${chr}.rda --agds.file=ukb.500k.wgs.chr${chr}.pass.annotated.gds --Annotation.name.catalog.file=Annotation_name_catalog.rda --QC_label=annotation/info/QC_label --verbose=T"
     done
 done  >> SAK_batch_ncRNA.txt

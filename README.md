@@ -27,7 +27,7 @@ SurvSTAAR imports R packages
 <a href="https://bioconductor.org/packages/release/bioc/html/SeqArray.html">SeqArray</a>,
 <a href="https://bioconductor.org/packages/release/bioc/html/SeqVarTools.html">SeqVarTools</a>,
 <a href="https://bioconductor.org/packages/release/bioc/html/GenomicFeatures.html">GenomicFeatures</a>,
-<a href="https://bioconductor.org/packages/release/data/annotation/html/TxDb.Hsapiens.UCSC.hg38.knownGene.html">TxDb.Hsapiens.UCSC.hg38.knownGene</a>,
+<a href="https://bioconductor.org/packages/release/data/annotation/html/TxDb.Hsapiens.UCSC.hg38.knownGene.html">TxDb.Hsapiens.UCSC.hg38.knownGene</a>.
  
 These dependencies should be installed before using SurvSTAAR and this pipeline.
 
@@ -53,65 +53,109 @@ For step-by-step instructions, please refer to <a href="https://github.com/xihao
 
 ### Step 0: Calculate polygenic effects
 
-In this step, we highly recommend users to use genotype array data (originally in PLINK format) to calculate polygenic effects. The corresponding Bash scripts can be found in the `script_step0` folder.
+In this step, we highly recommend users to use genotype array data (originally in PLINK format) to calculate polygenic effects. The corresponding Bash scripts can be found in the **`script_step0`** folder.
 
-#### Prepare the genotype data
-- Use <a href="https://www.cog-genomics.org/plink/">**PLINK1.9**</a> the 22 chromosome PLINK files into a single file using `script_step0/merge.sh`.
-- Use <a href="https://www.cog-genomics.org/plink/2.0/">**PLINK2**</a> to perform pruning on the merged file with the specific coefficients recommended by <a href="https://www.nature.com/articles/s41588-021-00870-7"> **REGENIE (Mbatchou, J. et al.)** </a>, using `script_step0/pruen.sh`.
-- Use <a href="https://www.cog-genomics.org/plink/2.0/">**PLINK2**</a> to extract the selected variants into a new PLINK file using `script_step0/`.
-#### Prepare the phenotype
+#### Step 0.1 Prepare the genotype data
+- Use <a href="https://www.cog-genomics.org/plink/">**PLINK1.9**</a> the 22 chromosome PLINK files into a single file using <a href="script_step0/merge.sh">**script_step0/merge.sh**</a>.
+- Use <a href="https://www.cog-genomics.org/plink/2.0/">**PLINK2**</a> to perform pruning on the merged file with the specific coefficients recommended by <a href="https://www.nature.com/articles/s41588-021-00870-7"> **REGENIE (Mbatchou, J. et al.)** </a>, using <a href="script_step0/pruen.sh">**script_step0/pruen.sh**</a>.
+- Use <a href="https://www.cog-genomics.org/plink/2.0/">**PLINK2**</a> to extract the selected variants into a new PLINK file using <a href="script_step0/extract.sh">**script_step0/extract.sh**</a>.
+  
+#### Step 0.2 Prepare the phenotype
 - Please refer to <a href="https://github.com/Cui-yd/ukbSurvPhe">**ukbSurvPhe**</a> for more information on setting up your time-to-event phenotype.
-#### Inpute:
+##### Input:
 - Pruned genotype array data in PLINK format.
 - Phenotype data containing only survival status (with header: IID FID status).
 - Covariate data (with header: IID FID cov1 cov2 ...).
-#### Submit the job
-In this step, we calculate polygenic effects using a whole-genome regression model with REGENIE. Users can refer to `script_step0/submit.sh` for submitting the job through REGENIE. For more details, including installation and additional job submission parameter settings, please refer to the <a href="https://rgcgithub.github.io/regenie/overview/#step-1-whole-genome-model">**REGENIE Step 1**</a> documentation.
-#### Output:
+##### Submit the job
+In this step, we calculate polygenic effects using a whole-genome regression model with REGENIE. Users can refer to <a href="script_step0/submit.sh">**script_step0/submit.sh**</a> for submitting the job through REGENIE. For more details, including installation and additional job submission parameter settings, please refer to the <a href="https://rgcgithub.github.io/regenie/overview/#step-1-whole-genome-model">**REGENIE Step 1**</a> documentation.
+##### Output:
 - `regenie_result_1.loco`
 - `regenie_result.log`
 
+
 ### Step 1: Fit Cox proportional hazards null model
 
-#### Prepare the phenotype for null model
-Users can combine the phenotype, covariates, and polygenic effects into a new data table using script `script_step1/combine_phenotype_polygenic.R`.
-##### Inpute:
+#### Step 1.1 Prepare the phenotype for null model
+Users can combine the phenotype, covariates, and polygenic effects into a new data table using script <a href="script_step1/combine_phenotype_polygenic.R">**script_step1/combine_phenotype_polygenic.R**</a>.
+##### Input:
 - Phenotype data in .txt format (with header: IID FID time status).
 - Output from step 0 `regenie_result_1.loco`.
 - Covariate data (with header: IID FID cov1 cov2 ...).
 ##### Output:
-- `/phenotype_all.txt` (with header: IID FID time status #Chr1:22... #all_covariates...)
+- `phenotype_all.txt` (with header: IID FID time status #Chr1:22... #all_covariates...)
   
-#### Fit null model
-`fitNullModel_onCluster.R` and `fitNullModel_onRAP.R` scripts designed for the HPC and RAP platforms, respectively. 
-You can use the `generate_NullModel_command.sh` script to generate the corresponding execution command. 
+#### Step 1.2 Fit null model
+<a href="fitNullModel_onCluster.R">**fitNullModel_onCluster.R**</a> and <a href="fitNullModel_onRAP.R">**fitNullModel_onRAP.R**</a> scripts designed for the HPC and RAP platforms, respectively. 
+
+Use the <a href="generate_NullModel_command.sh">**generate_NullModel_command.sh**</a> script to generate the corresponding execution command. 
 If you are using the RAP platform, please submit the job via Swiss Army Knife.
+
+##### Input: 
+`phenotype_all.txt`. The output from Step1.1, including phenotype, covariates, and polygenic effects.
+##### Output: 
+`objNull_chrA.rda`. Multiple RData files containing null model, where A represents the chromosome. Users can rename this file in <a href="generate_NullModel_command.sh">**generate_NullModel_command.sh**</a>.
 
 
 ### Step 2a: Individual analysis for common varaints
 
-`IndividualAnalysisGDS_onCluster.R` and `IndividualAnalysisGDS_onRAP.R` scripts designed for the aGDS format files to perform individual analysis.
-`IndividualAnalysisPlink_onCluster.R` and `IndividualAnalysisPlink_onRAP.R` scripts designed for the plink format files to perform individual analysis.
-You can use the `generate_IndividualGDS_command.sh` and `generate_IndividualPlink_command.sh` script to generate the corresponding execution command. 
+Perform single-variant analysis for common and low-frequency variants across the genome using the SurvSTAAR pipeline.
+
+<a href="IndividualAnalysisGDS_onCluster.R">**IndividualAnalysisGDS_onCluster.R**</a> and <a href="IndividualAnalysisGDS_onRAP.R">**IndividualAnalysisGDS_onRAP.R**</a> scripts designed for the aGDS format files to perform individual analysis.
+<a href="IndividualAnalysisPlink_onCluster.R">**IndividualAnalysisPlink_onCluster.R**</a> and <a href="IndividualAnalysisPlink_onRAP.R">**IndividualAnalysisPlink_onRAP.R**</a> scripts designed for the plink format files to perform individual analysis.
+
+First, use <a href="split_jobs_IndividualGDS.R">**split_jobs_IndividualGDS.R**</a> or <a href="split_jobs_IndividualPlink.R">**split_jobs_IndividualPlink.R**</a> to divide all individual variants into multiple sub-jobs.
+**Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
+
+Then, use the <a href="generate_IndividualGDS_command.sh">**generate_IndividualGDS_command.sh**</a> and <a href="generate_IndividualPlink_command.sh">**generate_IndividualPlink_command.sh**</a> script to generate the corresponding execution command. 
 If you are using the RAP platform, please submit the job via Swiss Army Knife.
 
+##### Output: 
+`Individual_results_chrA_B.rda`. Multiple RData files containing individual analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_IndividualGDS_command.sh">**generate_IndividualGDS_command.sh**</a> or <a href="generate_IndividualPlink_command.sh">**generate_IndividualPlink_command.sh**</a>.
 
 
 ### Step 2b: Gene-based test for rare variants
 
 #### Gene-centric coding analysis
-`GeneCentricCoding_onCluster.R` and `GeneCentricCoding_onRAP.R` scripts designed for the aGDS format files to perform gene-centric coding analysis.
-You can use the `generate_Coding_command.sh` script to generate the corresponding execution command. 
+Perform gene-centric analysis for coding rare variants using the SurvSTAAR pipeline. The gene-centric coding analysis provides five functional categories to aggregate coding rare variants of each protein-coding gene: (1) putative loss of function (stop gain, stop loss, and splice) RVs, (2) missense RVs, (3) disruptive missense RVs, (4) putative loss of function and disruptive missense RVs, and (5) synonymous RVs.
+
+<a href="GeneCentricCoding_onCluster.R">**GeneCentricCoding_onCluster.R**</a> and <a href="GeneCentricCoding_onRAP.R">**GeneCentricCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric coding analysis.
+
+First, use <a href="split_jobs_coding_noncoding.R">**split_jobs_coding_noncoding.R**</a> to divide all genes into multiple sub-jobs.
+**Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
+
+Then, use the <a href="generate_Coding_command.sh">**generate_Coding_command.sh**</a> script to generate the corresponding execution command. 
 If you are using the RAP platform, please submit the job via Swiss Army Knife.
+
+##### Output: 
+`Coding_results_chrA_B.rda`. Multiple RData files containing gene-centric coding rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_Coding_command.sh">**generate_Coding_command.sh**</a>.
+
 
 #### Gene-centric noncoding analysis
-`GeneCentricNonCoding_onRAP.R` and `GeneCentricNonCoding_onCluster.R` scripts designed for the aGDS format files to perform gene-centric noncoding analysis.
-You can use the `generate_NonCoding_command.sh` script to generate the corresponding execution command. 
+Perform gene-centric analysis for noncoding rare variants using the the SurvSTAAR pipeline. The gene-centric noncoding analysis provides eight functional categories of regulatory regions to aggregate noncoding rare variants: (1) promoter RVs overlaid with CAGE sites, (2) promoter RVs overlaid with DHS sites, (3) enhancer RVs overlaid with CAGE sites, (4) enhancer RVs overlaid with DHS sites, (5) untranslated region (UTR) RVs, (6) upstream region RVs, (7) downstream region RVs, and (8) noncoding RNA (ncRNA) RVs.
+
+<a href="GeneCentricNonCoding_onCluster.R">**GeneCentricNonCoding_onCluster.R**</a> and <a href="GeneCentricNonCoding_onRAP.R">**GeneCentricNonCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis.
+
+First, use <a href="split_jobs_coding_noncoding.R">**split_jobs_coding_noncoding.R**</a> to divide all genes into multiple sub-jobs.
+**Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
+
+Then, use the <a href="generate_NonCoding_command.sh">**generate_NonCoding_command.sh**</a> script to generate the corresponding execution command. 
 If you are using the RAP platform, please submit the job via Swiss Army Knife.
 
-`ncRNA_onCluster.R` and `ncRNA_onRAP.R` scripts designed for the aGDS format files to perform gene-centric noncoding analysis for ncRNA genes across the genome.
-You can use the `generate_ncRNA_command.sh` script to generate the corresponding execution command. 
+##### Output: 
+`NonCoding_results_chrA_B.rda`. Multiple RData files containing gene-centric noncoding rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_NonCoding_command.sh">**generate_NonCoding_command.sh**</a>.
+
+
+<a href="ncRNA_onCluster.R">**ncRNA_onCluster.R**</a> and <a href="ncRNA_onRAP.R">**ncRNA_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis for ncRNA genes across the genome.
+
+First, use <a href="split_jobs_cnRNA.R">**split_jobs_cnRNA.R**</a> to divide all ncRNA genes into multiple sub-jobs.
+**Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
+
+Then, use the <a href="generate_ncRNA_command.sh">**generate_ncRNA_command.sh**</a> script to generate the corresponding execution command. 
 If you are using the RAP platform, please submit the job via Swiss Army Knife.
+
+##### Output: 
+`ncRNA_results_chrA_B.rda`. Multiple RData files containing ncRNA rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_ncRNA_command.sh">**generate_ncRNA_command.sh**</a>.
+
 
 
 ### Data processing and visualization
