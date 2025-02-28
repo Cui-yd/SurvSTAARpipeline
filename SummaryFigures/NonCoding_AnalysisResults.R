@@ -2,7 +2,7 @@
 # Summarize and visualize noncoding masks analysis results
 # Yidan Cui
 # Initiate date: 2025/02/21
-# Current date: 2025/02/21
+# Current date: 2025/02/28
 ##########################################################
 
 setwd("/PATH/TO/RESULTS")
@@ -48,19 +48,32 @@ survstaar_noncoding = survstaar_noncoding[na.omit(match(genes_info$Gene, survsta
 genes_info$mid_pos = (genes_info$Start_POS + genes_info$End_POS) / 2
 survstaar_noncoding$pos = genes_info$mid_pos[match(survstaar_noncoding$Gene, genes_info$Gene)]
 
+save(survstaar_noncoding, file = "./survstaar_noncoding.rda")
 
 
 ## Manhattan plot
 colnames(survstaar_noncoding)[3:9] = c("Upstream","Downstream","UTR","Promoter_CAGE","Promoter_DHS","Enhancer_CAGE","Enhancer_DHS")
+
+png(filename = "./manhattan_noncoding.png", width = 13, height = 8, units = "in", res = 300)
 SurvSTAAR_Manhattan(result_data = survstaar_noncoding,
                     name = "Gene", chr = "Chr", pos = "pos",
                     col = c("#D68800", "#12008B"), max_y = 20,
                     pval = c("Upstream","Downstream","UTR","Promoter_CAGE","Promoter_DHS","Enhancer_CAGE","Enhancer_DHS"),
-                    pch = 0:6, genoline = 3.57e-7, legned_title = "")
+                    pch = 0:6, annotateP = 3.57e-7, genoline = 3.57e-7, legned_title = "Functional Categories")
+
+## no label
+# SurvSTAAR_Manhattan(result_data = survstaar_noncoding,
+#                     name = "Gene", chr = "Chr", pos = "pos",
+#                     col = c("#D68800", "#12008B"), max_y = 20,
+#                     pval = c("Upstream","Downstream","UTR","Promoter_CAGE","Promoter_DHS","Enhancer_CAGE","Enhancer_DHS"),
+#                     pch = 0:6, genoline = 3.57e-7, legned_title = "Functional Categories")
+dev.off()
 
 
 ## QQplot
 pval_result = survstaar_noncoding[,3:9]
+
+png(filename = "qqplot_noncoding.png", width = 7, height = 7, units = "in", res = 300)
 SurvSTAAR_QQplot(pval_result = pval_result, pch = 0:6, legned_title = FALSE,
                  legend_lable = c("Upstream","Downstream","UTR","Promoter_CAGE","Promoter_DHS","Enhancer_CAGE","Enhancer_DHS"))
-
+dev.off()

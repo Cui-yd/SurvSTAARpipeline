@@ -159,8 +159,17 @@ If you are using the RAP platform, please submit the job via Swiss Army Knife.
 
 
 ### Data processing and visualization
-`CodingAnalysisResults.R`, `IndividualAnalysisResults.R`, and `NonCodingAnalysisResults.R` are designed for organizing the corresponding analysis results and generating Manhattan and QQ plots.
 
+Use the provided script to organize the corresponding analysis results and generate Manhattan and QQ plots.
+- <a href="SummaryFigures/Individual_AnalysisResults.R">**SummaryFigures/Individual_AnalysisResults.R**</a>
+- <a href="SummaryFigures/Coding_AnalysisResults.R">**SummaryFigures/Coding_AnalysisResults.R**</a>
+- <a href="SummaryFigures/NonCoding_AnalysisResults.R">**SummaryFigures/NonCoding_AnalysisResults.R**</a>
+- <a href="SummaryFigures/ncRNA_AnalysisResults.R">**SummaryFigures/ncRNA_AnalysisResults.R**</a>
+
+#### Input:
+Revise the setwd() path to your results directory.
+#### Output:
+Each script generates an RData file containing all analysis results and two PNG files for the Manhattan and QQ plots.
 
 
 ## License
