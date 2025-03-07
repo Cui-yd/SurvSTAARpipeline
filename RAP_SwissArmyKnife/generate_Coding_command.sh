@@ -1,6 +1,6 @@
 ## chr_Nsets is the print of "split_jobs_coding_noncoding.R"
 ## For example, if you run each job with a maximum of 50 genes:
-chr_Nsets=(40 25 21 15 18 21 18 14 16 15 26 20  7 12 12 17 23  6 28 11  5  9)
+chr_Nsets=(0 40 25 21 15 18 21 18 14 16 15 26 20  7 12 12 17 23  6 28 11  5  9)
 
 for chr in {1..22}; do
     Nsets=${chr_Nsets[$chr]}

@@ -1,6 +1,6 @@
-## chr_Nsets is the print of "split_jobs_cnRNA.R"
+## chr_Nsets is the print of "split_jobs_ncRNA.R"
 ## For example, if you run each job with a maximum of 50 genes:
-chr_Nsets=(23 20 14 13 16 13 12 13 10 11 14 16  8 11 12 14 16  8 12  8  5  7)
+chr_Nsets=(0 23 20 14 13 16 13 12 13 10 11 14 16  8 11 12 14 16  8 12  8  5  7)
 
 for chr in {1..22}; do
     Nsets=${chr_Nsets[$chr]}

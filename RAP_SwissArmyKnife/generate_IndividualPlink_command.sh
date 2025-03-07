@@ -1,6 +1,6 @@
 ## chr_Nsets is the print of "split_jobs_IndividualPlink.R"
 ## For example, if you have the following print:
-chr_Nsets=(24 17 16 19 18 20 14  9 23 14 15 12 12 15 14 12  8  8 13 24 16 17)
+chr_Nsets=(0 24 17 16 19 18 20 14  9 23 14 15 12 12 15 14 12  8  8 13 24 16 17)
 
 for chr in {1..22}; do
     Nsets=${chr_Nsets[$chr]}

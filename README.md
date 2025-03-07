@@ -87,13 +87,23 @@ Users can combine the phenotype, covariates, and polygenic effects into a new da
 #### Step 1.2 Fit null model
 <a href="fitNullModel_onCluster.R">**fitNullModel_onCluster.R**</a> and <a href="fitNullModel_onRAP.R">**fitNullModel_onRAP.R**</a> scripts designed for the HPC and RAP platforms, respectively. 
 
-Use the <a href="generate_NullModel_command.sh">**generate_NullModel_command.sh**</a> script to generate the corresponding execution command. 
-If you are using the RAP platform, please submit the job via Swiss Army Knife.
+**HPC Cluster**
+Use the <a href="HPC_slurm/generate_NullModel_args.sh">**HPC_slurm/generate_NullModel_args.sh**</a> script to generate the the corresponding arguments file `args_NullModel.txt`.
+Then, submit the jobs by <a href="HPC_slurm/submit_NullModel.slurm">**HPC_slurm/submit_NullModel.slurm**</a> through the Slurm system using the following code in the terminal:
+```
+num_lines=$(wc -l < args_NullModel.txt)
+sbatch --array=1-${num_lines} submit_NullModel.slurm
+```
 
-##### Input: 
+**RAP Platform**
+Use the <a href="RAP_SwissArmyKnife/generate_NullModel_command.sh">**RAP_SwissArmyKnife/generate_NullModel_command.sh**</a> script to generate the corresponding execution commands file `SAK_batch_null_model.txt`.
+Then, submit the job via Swiss Army Knife.
+
+
+**Input:**
 `phenotype_all.txt`. The output from Step1.1, including phenotype, covariates, and polygenic effects.
-##### Output: 
-`objNull_chrA.rda`. Multiple RData files containing null model, where A represents the chromosome. Users can rename this file in <a href="generate_NullModel_command.sh">**generate_NullModel_command.sh**</a>.
+**Output:**
+`objNull_chrA.rda`. Multiple RData files containing null model, where A represents the chromosome. Users can rename this file in <a href="RAP_SwissArmyKnife/generate_NullModel_command.sh">**RAP_SwissArmyKnife/generate_NullModel_command.sh**</a> or <a href="HPC_slurm/generate_NullModel_args.sh">**HPC_slurm/generate_NullModel_args.sh**</a>.
 
 
 ### Step 2a: Individual analysis for common varaints
@@ -103,59 +113,91 @@ Perform single-variant analysis for common and low-frequency variants across the
 <a href="IndividualAnalysisGDS_onCluster.R">**IndividualAnalysisGDS_onCluster.R**</a> and <a href="IndividualAnalysisGDS_onRAP.R">**IndividualAnalysisGDS_onRAP.R**</a> scripts designed for the aGDS format files to perform individual analysis.
 <a href="IndividualAnalysisPlink_onCluster.R">**IndividualAnalysisPlink_onCluster.R**</a> and <a href="IndividualAnalysisPlink_onRAP.R">**IndividualAnalysisPlink_onRAP.R**</a> scripts designed for the plink format files to perform individual analysis.
 
-First, use <a href="split_jobs_IndividualGDS.R">**split_jobs_IndividualGDS.R**</a> or <a href="split_jobs_IndividualPlink.R">**split_jobs_IndividualPlink.R**</a> to divide all individual variants into multiple sub-jobs.
+First, use <a href="split_jobs/split_jobs_IndividualGDS.R">**split_jobs/split_jobs_IndividualGDS.R**</a> or <a href="split_jobs/split_jobs_IndividualPlink.R">**split_jobs/split_jobs_IndividualPlink.R**</a> to divide all variants into multiple sub-jobs.
 **Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
 
-Then, use the <a href="generate_IndividualGDS_command.sh">**generate_IndividualGDS_command.sh**</a> and <a href="generate_IndividualPlink_command.sh">**generate_IndividualPlink_command.sh**</a> script to generate the corresponding execution command. 
-If you are using the RAP platform, please submit the job via Swiss Army Knife.
+**HPC Cluster**
+- Copy and paste the output numeric vector to set `chr_Nsets` in <a href="HPC_slurm/generate_IndividualGDS_args.sh">**HPC_slurm/generate_IndividualGDS_args.sh**</a> or <a href="HPC_slurm/generate_IndividualPlink_args.sh">**HPC_slurm/generate_IndividualPlink_args.sh**</a>, ensuring that the first element is 0.
+- Run `sh generate_IndividualGDS_args.sh` or `sh generate_IndividualPlink_args.sh` in the terminal to generate the corresponding arguments file `args_IndividualGDS.txt` or `args_IndividualPlink.txt`.
+- Submit the jobs by <a href="HPC_slurm/submit_IndividualGDS.slurm">**HPC_slurm/submit_IndividualGDS.slurm**</a> or <a href="HPC_slurm/submit_IndividualPlink.slurm">**HPC_slurm/submit_IndividualPlink.slurm**</a> through the Slurm system using the following code in the terminal:
+  ```
+  num_lines=$(wc -l < args_xxx.txt)
+  sbatch --array=1-${num_lines} xxx.slurm
+  ```
+  ***NOTE***: The `args_xxx.txt` should be `args_IndividualGDS.txt` or `args_IndividualPlink.txt`, `xxx.slurm` should be `submit_IndividualGDS.slurm` or `submit_IndividualPlink.slurm`, depends on the file format.
 
-##### Output: 
-`Individual_results_chrA_B.rda`. Multiple RData files containing individual analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_IndividualGDS_command.sh">**generate_IndividualGDS_command.sh**</a> or <a href="generate_IndividualPlink_command.sh">**generate_IndividualPlink_command.sh**</a>.
+**RAP Platform**
+- Copy and paste the output numeric vector to set `chr_Nsets` in <a href="RAP_SwissArmyKnife/generate_IndividualGDS_command.sh">**RAP_SwissArmyKnife/generate_IndividualGDS_command.sh**</a> or <a href="RAP_SwissArmyKnife/generate_IndividualPlink_command.sh">**RAP_SwissArmyKnife/generate_IndividualPlink_command.sh**</a>, ensuring that the first element is 0.
+- Run `sh generate_IndividualGDS_command.sh` or `sh generate_IndividualPlink_command.sh` in the terminal to generate the corresponding execution commands file `SAK_batch_individualGDS.txt` or `SAK_batch_individualPlink.txt`.
+- Submit the job via Swiss Army Knife.  
+
+
+**Output:**
+`Individual_results_chrA_B.rda`. Multiple RData files containing individual analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="HPC_slurm/generate_IndividualGDS_args.sh">**HPC_slurm/generate_IndividualGDS_args.sh**</a>, <a href="HPC_slurm/generate_IndividualPlink_args.sh">**HPC_slurm/generate_IndividualPlink_args.sh**</a>, <a href="RAP_SwissArmyKnife/generate_IndividualGDS_command.sh">**RAP_SwissArmyKnife/generate_IndividualGDS_command.sh**</a>, or <a href="RAP_SwissArmyKnife/generate_IndividualPlink_command.sh">**RAP_SwissArmyKnife/generate_IndividualPlink_command.sh**</a>.
 
 
 ### Step 2b: Gene-based test for rare variants
 
-#### Gene-centric coding analysis
+#### Step 2b.1 Gene-centric coding analysis
 Perform gene-centric analysis for coding rare variants using the SurvSTAAR pipeline. The gene-centric coding analysis provides five functional categories to aggregate coding rare variants of each protein-coding gene: (1) putative loss of function (stop gain, stop loss, and splice) RVs, (2) missense RVs, (3) disruptive missense RVs, (4) putative loss of function and disruptive missense RVs, and (5) synonymous RVs.
 
 <a href="GeneCentricCoding_onCluster.R">**GeneCentricCoding_onCluster.R**</a> and <a href="GeneCentricCoding_onRAP.R">**GeneCentricCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric coding analysis.
 
-First, use <a href="split_jobs_coding_noncoding.R">**split_jobs_coding_noncoding.R**</a> to divide all genes into multiple sub-jobs.
+First, use <a href="split_jobs/split_jobs_coding_noncoding.R">**split_jobs/split_jobs_coding_noncoding.R**</a> to divide all genes into multiple sub-jobs.
 **Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
 
-Then, use the <a href="generate_Coding_command.sh">**generate_Coding_command.sh**</a> script to generate the corresponding execution command. 
-If you are using the RAP platform, please submit the job via Swiss Army Knife.
 
-##### Output: 
-`Coding_results_chrA_B.rda`. Multiple RData files containing gene-centric coding rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_Coding_command.sh">**generate_Coding_command.sh**</a>.
+**HPC Cluster**
+- Copy and paste the output numeric vector to set `chr_Nsets` in <a href="HPC_slurm/generate_Coding_args.sh">**HPC_slurm/generate_Coding_args.sh**</a>, ensuring that the first element is 0.
+- Run `sh generate_Coding_args.sh` in the terminal to generate the corresponding arguments file `args_Coding.txt`.
+- Submit the jobs by <a href="HPC_slurm/submit_Coding.slurm">**HPC_slurm/submit_Coding.slurm**</a> through the Slurm system using the following code in the terminal:
+  ```
+  num_lines=$(wc -l < args_Coding.txt)
+  sbatch --array=1-${num_lines} submit_Coding.slurm
+  ```
+
+**RAP Platform**
+- Copy and paste the output numeric vector to set `chr_Nsets` in <a href="RAP_SwissArmyKnife/generate_Coding_command.sh">**RAP_SwissArmyKnife/generate_Coding_command.sh**</a>, ensuring that the first element is 0.
+- Run `sh generate_Coding_command.sh` in the terminal to generate the corresponding execution commands file `SAK_batch_coding.txt`.
+- Submit the job via Swiss Army Knife.
 
 
-#### Gene-centric noncoding analysis
+**Output:**
+`Coding_results_chrA_B.rda`. Multiple RData files containing gene-centric coding rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="HPC_slurm/generate_Coding_args.sh">**HPC_slurm/generate_Coding_args.sh**</a> or <a href="RAP_SwissArmyKnife/generate_Coding_command.sh">**RAP_SwissArmyKnife/generate_Coding_command.sh**</a>.
+
+
+#### Step 2b.2 Gene-centric noncoding analysis
 Perform gene-centric analysis for noncoding rare variants using the the SurvSTAAR pipeline. The gene-centric noncoding analysis provides eight functional categories of regulatory regions to aggregate noncoding rare variants: (1) promoter RVs overlaid with CAGE sites, (2) promoter RVs overlaid with DHS sites, (3) enhancer RVs overlaid with CAGE sites, (4) enhancer RVs overlaid with DHS sites, (5) untranslated region (UTR) RVs, (6) upstream region RVs, (7) downstream region RVs, and (8) noncoding RNA (ncRNA) RVs.
 
-<a href="GeneCentricNonCoding_onCluster.R">**GeneCentricNonCoding_onCluster.R**</a> and <a href="GeneCentricNonCoding_onRAP.R">**GeneCentricNonCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis.
-
-First, use <a href="split_jobs_coding_noncoding.R">**split_jobs_coding_noncoding.R**</a> to divide all genes into multiple sub-jobs.
-**Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
-
-Then, use the <a href="generate_NonCoding_command.sh">**generate_NonCoding_command.sh**</a> script to generate the corresponding execution command. 
-If you are using the RAP platform, please submit the job via Swiss Army Knife.
-
-##### Output: 
-`NonCoding_results_chrA_B.rda`. Multiple RData files containing gene-centric noncoding rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_NonCoding_command.sh">**generate_NonCoding_command.sh**</a>.
-
+<a href="GeneCentricNonCoding_onCluster.R">**GeneCentricNonCoding_onCluster.R**</a> and <a href="GeneCentricNonCoding_onRAP.R">**GeneCentricNonCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis. 
 
 <a href="ncRNA_onCluster.R">**ncRNA_onCluster.R**</a> and <a href="ncRNA_onRAP.R">**ncRNA_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis for ncRNA genes across the genome.
 
-First, use <a href="split_jobs_cnRNA.R">**split_jobs_cnRNA.R**</a> to divide all ncRNA genes into multiple sub-jobs.
+
+First, use <a href="split_jobs/split_jobs_coding_noncoding.R">**split_jobs/split_jobs_coding_noncoding.R**</a> and <a href="split_jobs/split_jobs_ncRNA.R">**split_jobs_ncRNA.R**</a> to divide all genes into multiple sub-jobs.
 **Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
 
-Then, use the <a href="generate_ncRNA_command.sh">**generate_ncRNA_command.sh**</a> script to generate the corresponding execution command. 
-If you are using the RAP platform, please submit the job via Swiss Army Knife.
 
-##### Output: 
-`ncRNA_results_chrA_B.rda`. Multiple RData files containing ncRNA rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="generate_ncRNA_command.sh">**generate_ncRNA_command.sh**</a>.
+**HPC Cluster**
+- Copy and paste the output numeric vector separately to set `chr_Nsets` in <a href="HPC_slurm/generate_NonCoding_args.sh">**HPC_slurm/generate_NonCoding_args.sh**</a> and <a href="HPC_slurm/generate_ncRNA_args.sh">**HPC_slurm/generate_ncRNA_args.sh**</a>, ensuring that the first element is 0.
+- Run `sh generate_NonCoding_args.sh` and `sh generate_ncRNA_args.sh` in the terminal to generate the corresponding arguments file `args_NonCoding.txt` and `args_ncRNA.txt`.
+- Submit the jobs by <a href="HPC_slurm/submit_NonCoding.slurm">**HPC_slurm/submit_NonCoding.slurm**</a> and <a href="HPC_slurm/submit_ncRNA.slurm">**HPC_slurm/submit_ncRNA.slurm**</a> through the Slurm system using the following code in the terminal:
+  ```
+  num_lines=$(wc -l < args_NonCoding.txt)
+  sbatch --array=1-${num_lines} submit_NonCoding.slurm
+  
+  num_lines=$(wc -l < args_ncRNA.txt)
+  sbatch --array=1-${num_lines} submit_ncRNA.slurm
+  ```
 
+**RAP Platform**
+- Copy and paste the output numeric vector separately to set `chr_Nsets` in <a href="RAP_SwissArmyKnife/generate_NonCoding_command.sh">**RAP_SwissArmyKnife/generate_NonCoding_command.sh**</a> and <a href="RAP_SwissArmyKnife/generate_ncRNA_command.sh">**RAP_SwissArmyKnife/generate_ncRNA_command.sh**</a>, ensuring that the first element is 0.
+- Run `sh generate_NonCoding_command.sh` and `sh generate_ncRNA_command.sh` in the terminal to generate the corresponding execution commands file `SAK_batch_noncoding.txt` and `SAK_batch_ncRNA.txt`.
+- Submit the job via Swiss Army Knife.
+
+
+**Output:**
+`NonCoding_results_chrA_B.rda` and `ncRNA_results_chrA_B.rda`. Multiple RData files containing gene-centric noncoding rare variants analysis results, where A represents the chromosome and B represents the sub-job. Users can rename these files in <a href="HPC_slurm/generate_NonCoding_args.sh">**HPC_slurm/generate_NonCoding_args.sh**</a>, <a href="RAP_SwissArmyKnife/generate_NonCoding_command.sh">**RAP_SwissArmyKnife/generate_NonCoding_command.sh**</a>, <a href="HPC_slurm/generate_ncRNA_args.sh">**HPC_slurm/generate_ncRNA_args.sh**</a>, or <a href="RAP_SwissArmyKnife/generate_ncRNA_command.sh">**RAP_SwissArmyKnife/generate_ncRNA_command.sh**</a>.
 
 
 ### Data processing and visualization
@@ -166,9 +208,9 @@ Use the provided script to organize the corresponding analysis results and gener
 - <a href="SummaryFigures/NonCoding_AnalysisResults.R">**SummaryFigures/NonCoding_AnalysisResults.R**</a>
 - <a href="SummaryFigures/ncRNA_AnalysisResults.R">**SummaryFigures/ncRNA_AnalysisResults.R**</a>
 
-#### Input:
+**Input:**
 Revise the setwd() path to your results directory.
-#### Output:
+**Output:**
 Each script generates an RData file containing all analysis results and two PNG files for the Manhattan and QQ plots.
 
 
