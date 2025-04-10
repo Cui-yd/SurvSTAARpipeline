@@ -3,11 +3,20 @@
 # on UK Biobank Research Analysis Platform
 # Yidan Cui
 # Initiate date: 2025/02/20
-# Current date: 2025/02/20
+# Current date: 2025/04/10
 ##########################################################
 
 rm(list = ls())
 gc()
+
+## Load packages
+
+suppressPackageStartupMessages(library(data.table, quietly = T))
+suppressPackageStartupMessages(library(survival, quietly = T))
+suppressPackageStartupMessages(library(Matrix, quietly = T))
+suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
+
+print(sessionInfo())
 
 # set parameters ----------------------------------------------------------
 
@@ -20,7 +29,7 @@ default_args = list(
   statusCol = "status",
   timeCol = "time",
   covCol = c("sex", "birthyr", "PC1", "PC2", "PC3", "PC4", "PC5",
-             "PC6", "PC7", "PC8", "PC9", "PC10", "batch"),
+             "PC6", "PC7", "PC8", "PC9", "PC10"),
   sampleCol = "IID",
   output = "output_default",
   use_SPA = TRUE,
@@ -33,19 +42,11 @@ log_args = c("LOCO", "use_SPA", "verbose")
 args <- commandArgs(TRUE)
 
 args_list = argsReshape(default_args, args, num_args, log_args)
+if (length(strsplit(args_list$covCol, ",")) == 1) {
+  args_list$covCol = strsplit(args_list$covCol, ",")[[1]]
+}
 
 print(args_list)
-
-
-## Load packages
-
-suppressPackageStartupMessages(library(data.table, quietly = T))
-suppressPackageStartupMessages(library(survival, quietly = T))
-suppressPackageStartupMessages(library(Matrix, quietly = T))
-suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
-
-
-print(sessionInfo())
 
 
 # fit null model -----------------------------------------------------------

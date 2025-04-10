@@ -23,6 +23,7 @@ SurvSTAAR imports R packages
 <a href="https://cran.r-project.org/web/packages/Matrix/index.html">Matrix</a>, 
 <a href="https://cran.r-project.org/web/packages/data.table/index.html">data.table</a>,
 <a href="https://cran.r-project.org/web/packages/CompQuadForm/index.html">CompQuadForm</a>,
+<a href="https://cran.r-project.org/web/packages/seqminer/index.html">seqminer</a>,
 <a href="https://cran.r-project.org/web/packages/dplyr/index.html">dplyr</a>,
 <a href="https://bioconductor.org/packages/release/bioc/html/SeqArray.html">SeqArray</a>,
 <a href="https://bioconductor.org/packages/release/bioc/html/SeqVarTools.html">SeqVarTools</a>,
@@ -34,13 +35,21 @@ These dependencies should be installed before using SurvSTAAR and this pipeline.
 
 ## Installation
 ```
-library(devtools)
-devtools::install_github("Cui-yd/SurvSTAAR",ref="main")
+install.packages(c("survival", "Matrix", "data.table", "CompQuadForm", "seqminer", "dplyr"))
+
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install(c("SeqArray", "SeqVarTools", "GenomicFeatures", "TxDb.Hsapiens.UCSC.hg38.knownGene"))
+
+devtools::install_github("Cui-yd/SurvSTAAR", ref = "main")
 ```
 
 ## Usage
 
-### Step 0: Generate annotated GDS (aGDS) file using FAVORannotator
+### Step 0.1: Generate annotated GDS (aGDS) file using FAVORannotator
+
+(**Skip this step if you are only analyzing common variants at the individual level.**)
 
 R/Bioconductor package **SeqArray** provides functions to convert the genotype data (in VCF/BCF/PLINK BED/SNPRelate format) to SeqArray GDS format. For more details on usage, please see the R/Bioconductor package <a href="https://bioconductor.org/packages/release/bioc/html/SeqArray.html">**SeqArray**</a> [<a href="https://www.bioconductor.org/packages/devel/bioc/manuals/SeqArray/man/SeqArray.pdf">manual</a>].
 
@@ -51,23 +60,23 @@ R package **gds2bgen** provides functions to convert the genotype data (in BGEN 
 For step-by-step instructions, please refer to <a href="https://github.com/xihaoli/STAARpipeline-Tutorial">**STAARpipeline-Tutorial**</a> and <a href="http://favor.genohub.org">**FAVOR website**</a> for the relevant steps.
 
 
-### Step 0: Calculate polygenic effects
+### Step 0.2: Calculate polygenic effects
 
 In this step, we highly recommend users to use genotype array data (originally in PLINK format) to calculate polygenic effects. The corresponding Bash scripts can be found in the **`script_step0`** folder.
 
-#### Step 0.1 Prepare the genotype data
-- Use <a href="https://www.cog-genomics.org/plink/">**PLINK1.9**</a> the 22 chromosome PLINK files into a single file using <a href="script_step0/merge.sh">**script_step0/merge.sh**</a>.
+#### Step 0.2.1 Prepare the genotype array data
+- Use <a href="https://www.cog-genomics.org/plink/">**PLINK1.9**</a> merge the 22 chromosome PLINK files into a single file using <a href="script_step0/merge.sh">**script_step0/merge.sh**</a>.
 - Use <a href="https://www.cog-genomics.org/plink/2.0/">**PLINK2**</a> to perform pruning on the merged file with the specific coefficients recommended by <a href="https://www.nature.com/articles/s41588-021-00870-7"> **REGENIE (Mbatchou, J. et al.)** </a>, using <a href="script_step0/pruen.sh">**script_step0/pruen.sh**</a>.
 - Use <a href="https://www.cog-genomics.org/plink/2.0/">**PLINK2**</a> to extract the selected variants into a new PLINK file using <a href="script_step0/extract.sh">**script_step0/extract.sh**</a>.
   
-#### Step 0.2 Prepare the phenotype
+#### Step 0.2.2 Prepare the phenotype
 - Please refer to <a href="https://github.com/Cui-yd/ukbSurvPhe">**ukbSurvPhe**</a> for more information on setting up your time-to-event phenotype.
 ##### Input:
 - Pruned genotype array data in PLINK format.
 - Phenotype data containing only survival status (with header: IID FID status).
 - Covariate data (with header: IID FID cov1 cov2 ...).
 ##### Submit the job
-In this step, we calculate polygenic effects using a whole-genome regression model with REGENIE. Users can refer to <a href="script_step0/submit.sh">**script_step0/submit.sh**</a> for submitting the job through REGENIE. For more details, including installation and additional job submission parameter settings, please refer to the <a href="https://rgcgithub.github.io/regenie/overview/#step-1-whole-genome-model">**REGENIE Step 1**</a> documentation.
+In this step, we calculate polygenic effects using a whole-genome regression model with REGENIE. Users can refer to <a href="script_step0/submit.sh">**script_step0/submit.sh**</a> for submitting the job through REGENIE. For more details, including installation and additional job submission parameter settings, please refer to the <a href="https://rgcgithub.github.io/regenie/overview/#step-1-whole-genome-model">**REGENIE Step 1**</a> documentation. (For reference, this step takes approximately 2 hours for 400,000 genotype variants.)
 ##### Output:
 - `regenie_result_1.loco`
 - `regenie_result.log`

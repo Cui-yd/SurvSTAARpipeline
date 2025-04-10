@@ -3,11 +3,21 @@
 # on UK Biobank Research Analysis Platform
 # Yidan Cui
 # Initiate date: 2025/02/21
-# Current date: 2025/02/21
+# Current date: 2025/04/10
 ##########################################################
 
 rm(list = ls())
 gc()
+
+## Load packages
+
+print("** Loading packages and data... **")
+suppressPackageStartupMessages(library(data.table, quietly = T))
+suppressPackageStartupMessages(library(Matrix, quietly = T))
+suppressPackageStartupMessages(library(SeqArray, quietly = T))
+suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
+
+print(sessionInfo())
 
 # set parameters ----------------------------------------------------------
 
@@ -43,17 +53,6 @@ args <- commandArgs(TRUE)
 args_list = argsReshape(default_args, args, num_args, log_args)
 
 print(args_list)
-
-
-print("** Loading packages and data... **")
-suppressPackageStartupMessages(library(data.table, quietly = T))
-suppressPackageStartupMessages(library(Matrix, quietly = T))
-suppressPackageStartupMessages(library(SeqArray, quietly = T))
-suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
-
-
-print(sessionInfo())
-
 
 genofile = seqOpen(args_list$agds.file)
 print(paste0("Open aGDS file successfully! ", basename(genofile$filename)))
@@ -187,6 +186,7 @@ end = Sys.time()
 print(paste0("Finish analyzing this job at ", end))
 elapse = difftime(end, begin, units = "hours")
 
+save(individual_results, file = output_name)
 print(paste0("The results has been saved at ", output_name))
 
 

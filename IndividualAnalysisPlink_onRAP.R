@@ -3,11 +3,21 @@
 # on UK Biobank Research Analysis Platform
 # Yidan Cui
 # Initiate date: 2025/02/21
-# Current date: 2025/02/21
+# Current date: 2025/04/10
 ##########################################################
 
 rm(list = ls())
 gc()
+
+## Load packages
+
+print("** Loading packages and data... **")
+suppressPackageStartupMessages(library(data.table, quietly = T))
+suppressPackageStartupMessages(library(Matrix, quietly = T))
+suppressPackageStartupMessages(library(seqminer, quietly = T))
+suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
+
+print(sessionInfo())
 
 # set parameters ----------------------------------------------------------
 
@@ -42,17 +52,6 @@ args_list = argsReshape(default_args, args, num_args, log_args)
 
 print(args_list)
 
-
-print("** Loading packages and data... **")
-suppressPackageStartupMessages(library(data.table, quietly = T))
-suppressPackageStartupMessages(library(Matrix, quietly = T))
-suppressPackageStartupMessages(library(seqminer, quietly = T))
-suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
-
-
-print(sessionInfo())
-
-
 rap_load_as(args_list$objnull.file, "objNull")
 print(paste0("Load objnull data successfully! ", args_list$objnull.file))
 
@@ -69,7 +68,7 @@ begin = Sys.time()
 print(paste0("Begin running the program at ", begin))
 
 if (is.null(args_list$set) & is.null(args_list$Nsets) & is.null(args_list$start_loc) & is.null(args_list$end_loc)) {
-  ## analyze all variants in plink file in one job
+  ## analyze all variants of plink file in one job
 
   print(paste0("In this job, there are ", length_allSet, " single variants will be tested"))
 
@@ -173,7 +172,7 @@ end = Sys.time()
 print(paste0("Finish analyzing this job at ", end))
 elapse = difftime(end, begin, units = "hours")
 
+save(individual_results, file = output_name)
 print(paste0("The results has been saved at ", output_name))
-
 
 system(paste0("dx upload ", output_name))

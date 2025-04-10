@@ -3,11 +3,26 @@
 # on High Performance Computing Cluster
 # Yidan Cui
 # Initiate date: 2025/02/20
-# Current date: 2025/02/20
+# Current date: 2025/04/10
 ##########################################################
 
 rm(list = ls())
 gc()
+
+## Load packages
+
+print("** Loading packages and data... **")
+suppressPackageStartupMessages(library(gdsfmt, quietly = T))
+suppressPackageStartupMessages(library(SeqArray, quietly = T))
+suppressPackageStartupMessages(library(SeqVarTools, quietly = T))
+suppressPackageStartupMessages(library(Matrix, quietly = T))
+suppressPackageStartupMessages(library(stats, quietly = T))
+suppressPackageStartupMessages(library(data.table, quietly = T))
+suppressPackageStartupMessages(library(CompQuadForm, quietly = T))
+suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
+
+print(sessionInfo())
+
 
 # set parameters ----------------------------------------------------------
 
@@ -51,21 +66,11 @@ log_args = c("Use_annotation_weights", "combine_ultra_rare", "use_SPA", "SPA_fil
 args <- commandArgs(TRUE)
 
 args_list = argsReshape(default_args, args, num_args, log_args)
+if (length(strsplit(args_list$Annotation_name, ",")) == 1) {
+  args_list$Annotation_name = strsplit(args_list$Annotation_name, ",")[[1]]
+}
 
 print(args_list)
-
-
-print("** Loading packages and data... **")
-suppressPackageStartupMessages(library(gdsfmt, quietly = T))
-suppressPackageStartupMessages(library(SeqArray, quietly = T))
-suppressPackageStartupMessages(library(SeqVarTools, quietly = T))
-suppressPackageStartupMessages(library(Matrix, quietly = T))
-suppressPackageStartupMessages(library(stats, quietly = T))
-suppressPackageStartupMessages(library(data.table, quietly = T))
-suppressPackageStartupMessages(library(CompQuadForm, quietly = T))
-suppressPackageStartupMessages(library(SurvSTAAR, quietly = T))
-
-print(sessionInfo())
 
 
 genofile = seqOpen(args_list$agds.file)
