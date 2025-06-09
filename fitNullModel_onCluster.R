@@ -59,7 +59,7 @@ if (!is.null(args_list$genofile)) {
 
 
 PRSCol = paste0("Chr", args_list$chr)
-output_name = paste0(args_list$output, "_chr", args_list$chr, ".rda")
+output_name = paste0(args_list$output, ".rda")
 
 begin = Sys.time()
 
