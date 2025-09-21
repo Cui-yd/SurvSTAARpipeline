@@ -94,7 +94,7 @@ Users can combine the phenotype, covariates, and polygenic effects into a new da
 - `phenotype_all.txt` (with header: IID FID time status #Chr1:22... #all_covariates...)
   
 #### Step 1.2 Fit null model
-<a href="fitNullModel_onCluster.R">**fitNullModel_onCluster.R**</a> and <a href="fitNullModel_onRAP.R">**fitNullModel_onRAP.R**</a> scripts designed for the HPC and RAP platforms, respectively. 
+<a href="HPC_script/fitNullModel_onCluster.R">**HPC_script/fitNullModel_onCluster.R**</a> and <a href="fitNullModel_onRAP.R">**fitNullModel_onRAP.R**</a> scripts designed for the HPC and RAP platforms, respectively. 
 
 **HPC Cluster**
 Use the <a href="HPC_slurm/generate_NullModel_args.sh">**HPC_slurm/generate_NullModel_args.sh**</a> script to generate the the corresponding arguments file `args_NullModel.txt`.
@@ -119,8 +119,8 @@ Then, submit the job via Swiss Army Knife.
 
 Perform single-variant analysis for common and low-frequency variants across the genome using the SurvSTAAR pipeline.
 
-<a href="IndividualAnalysisGDS_onCluster.R">**IndividualAnalysisGDS_onCluster.R**</a> and <a href="IndividualAnalysisGDS_onRAP.R">**IndividualAnalysisGDS_onRAP.R**</a> scripts designed for the aGDS format files to perform individual analysis.
-<a href="IndividualAnalysisPlink_onCluster.R">**IndividualAnalysisPlink_onCluster.R**</a> and <a href="IndividualAnalysisPlink_onRAP.R">**IndividualAnalysisPlink_onRAP.R**</a> scripts designed for the plink format files to perform individual analysis.
+<a href="HPC_script/IndividualAnalysisGDS_onCluster.R">**HPC_script/IndividualAnalysisGDS_onCluster.R**</a> and <a href="IndividualAnalysisGDS_onRAP.R">**IndividualAnalysisGDS_onRAP.R**</a> scripts designed for the aGDS format files to perform individual analysis.
+<a href="HPC_script/IndividualAnalysisPlink_onCluster.R">**HPC_script/IndividualAnalysisPlink_onCluster.R**</a> and <a href="IndividualAnalysisPlink_onRAP.R">**IndividualAnalysisPlink_onRAP.R**</a> scripts designed for the plink format files to perform individual analysis.
 
 First, use <a href="split_jobs/split_jobs_IndividualGDS.R">**split_jobs/split_jobs_IndividualGDS.R**</a> or <a href="split_jobs/split_jobs_IndividualPlink.R">**split_jobs/split_jobs_IndividualPlink.R**</a> to divide all variants into multiple sub-jobs.
 **Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
@@ -150,7 +150,7 @@ First, use <a href="split_jobs/split_jobs_IndividualGDS.R">**split_jobs/split_jo
 #### Step 2b.1 Gene-centric coding analysis
 Perform gene-centric analysis for coding rare variants using the SurvSTAAR pipeline. The gene-centric coding analysis provides five functional categories to aggregate coding rare variants of each protein-coding gene: (1) putative loss of function (stop gain, stop loss, and splice) RVs, (2) missense RVs, (3) disruptive missense RVs, (4) putative loss of function and disruptive missense RVs, and (5) synonymous RVs.
 
-<a href="GeneCentricCoding_onCluster.R">**GeneCentricCoding_onCluster.R**</a> and <a href="GeneCentricCoding_onRAP.R">**GeneCentricCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric coding analysis.
+<a href="HPC_script/GeneCentricCoding_onCluster.R">**HPC_script/GeneCentricCoding_onCluster.R**</a> and <a href="GeneCentricCoding_onRAP.R">**GeneCentricCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric coding analysis.
 
 First, use <a href="split_jobs/split_jobs_coding_noncoding.R">**split_jobs/split_jobs_coding_noncoding.R**</a> to divide all genes into multiple sub-jobs.
 **Output:** A numeric vector indicating the number of sub-jobs for each of the 22 chromosomes.
@@ -178,9 +178,9 @@ First, use <a href="split_jobs/split_jobs_coding_noncoding.R">**split_jobs/split
 #### Step 2b.2 Gene-centric noncoding analysis
 Perform gene-centric analysis for noncoding rare variants using the the SurvSTAAR pipeline. The gene-centric noncoding analysis provides eight functional categories of regulatory regions to aggregate noncoding rare variants: (1) promoter RVs overlaid with CAGE sites, (2) promoter RVs overlaid with DHS sites, (3) enhancer RVs overlaid with CAGE sites, (4) enhancer RVs overlaid with DHS sites, (5) untranslated region (UTR) RVs, (6) upstream region RVs, (7) downstream region RVs, and (8) noncoding RNA (ncRNA) RVs.
 
-<a href="GeneCentricNonCoding_onCluster.R">**GeneCentricNonCoding_onCluster.R**</a> and <a href="GeneCentricNonCoding_onRAP.R">**GeneCentricNonCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis. 
+<a href="HPC_script/GeneCentricNonCoding_onCluster.R">**HPC_script/GeneCentricNonCoding_onCluster.R**</a> and <a href="GeneCentricNonCoding_onRAP.R">**GeneCentricNonCoding_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis. 
 
-<a href="ncRNA_onCluster.R">**ncRNA_onCluster.R**</a> and <a href="ncRNA_onRAP.R">**ncRNA_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis for ncRNA genes across the genome.
+<a href="HPC_script/ncRNA_onCluster.R">**HPC_script/ncRNA_onCluster.R**</a> and <a href="ncRNA_onRAP.R">**ncRNA_onRAP.R**</a> scripts designed for the aGDS format files to perform gene-centric noncoding analysis for ncRNA genes across the genome.
 
 
 First, use <a href="split_jobs/split_jobs_coding_noncoding.R">**split_jobs/split_jobs_coding_noncoding.R**</a> and <a href="split_jobs/split_jobs_ncRNA.R">**split_jobs_ncRNA.R**</a> to divide all genes into multiple sub-jobs.
